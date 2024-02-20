@@ -11,13 +11,15 @@ resource "aws_apigatewayv2_integration" "message" {
 
   request_parameters = {
     "QueueUrl"    = aws_sqs_queue.main.url
-    "MessageBody" = "$request.body.message"
+    "MessageBody" = "$request.body"
   }
 }
 
 resource "aws_apigatewayv2_route" "message" {
-  api_id    = aws_apigatewayv2_api.main.id
-  route_key = "POST /v1/full-send"
+  api_id             = aws_apigatewayv2_api.main.id
+  route_key          = "POST /v1/full-send"
+  authorization_type = "CUSTOM"
+  authorizer_id      = aws_apigatewayv2_authorizer.main.id
 
   target = "integrations/${aws_apigatewayv2_integration.message.id}"
 }

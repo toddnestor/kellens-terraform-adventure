@@ -25,3 +25,19 @@ resource "aws_iam_role_policy" "sqs_policy" {
   policy = data.aws_iam_policy_document.sqs_policy.json
   role   = aws_iam_role.apigateway.id
 }
+
+resource "aws_iam_role_policy" "invocation_policy" {
+  name = "default"
+  role = aws_iam_role.invocation_role.id
+
+  policy = data.aws_iam_policy_document.invocation.json
+}
+
+data "aws_iam_policy_document" "invocation" {
+  statement {
+    actions = ["lambda:InvokeFunction"]
+    resources = [
+      aws_lambda_function.authorizer.arn,
+    ]
+  }
+}
