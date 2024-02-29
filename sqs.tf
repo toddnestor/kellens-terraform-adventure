@@ -23,3 +23,28 @@ resource "aws_apigatewayv2_route" "message" {
 
   target = "integrations/${aws_apigatewayv2_integration.message.id}"
 }
+
+data "archive_file" "sqs_lambda" {
+  type        = "zip"
+  source_file = "sqs-lambda/index.mjs"
+  output_path = "sqs_lambda_function_payload.zip"
+}
+
+resource "aws_lambda_function" "sqs_subscriber" {
+  # If the file is not in the current working directory you will need to include a
+  # path.module in the filename.
+  filename      = "sqs_lambda_function_payload.zip"
+  function_name = "toddAuthorizer"
+  role          = aws_iam_role.iam_for_lambda.arn
+  handler       = "index.handler"
+
+  source_code_hash = data.archive_file.sqs_lambda.output_base64sha256
+
+  runtime = "nodejs20.x"
+
+  environment {
+    variables = {
+      foo = "bar"
+    }
+  }
+}
