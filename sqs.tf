@@ -48,3 +48,10 @@ resource "aws_lambda_function" "sqs_subscriber" {
     }
   }
 }
+
+resource "aws_lambda_event_source_mapping" "main" {
+  event_source_arn = aws_sqs_queue.main.arn
+  function_name    = aws_lambda_function.sqs_subscriber.function_name
+
+  depends_on = [aws_iam_role_policy_attachment.sqs_policy]
+}

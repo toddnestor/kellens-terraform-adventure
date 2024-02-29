@@ -41,3 +41,40 @@ data "aws_iam_policy_document" "invocation" {
     ]
   }
 }
+
+resource "aws_iam_role_policy_attachment" "sqs_policy" {
+  role       = aws_iam_role.iam_for_lambda.id
+  policy_arn = aws_iam_policy.sqs_policy.arn
+}
+
+resource "aws_iam_policy" "sqs_policy" {
+  name   = "todds_lambda_sqs_policy"
+  path   = "/"
+  policy = data.aws_iam_policy_document.sqs_policy_doc.json
+}
+
+# sqs policies for the lambda
+data "aws_iam_policy_document" "sqs_policy_doc" {
+  statement {
+    actions = [
+      "sqs:DeleteMessage",
+      "sqs:GetQueueUrl",
+      "sqs:ChangeMessageVisibility",
+      "sqs:SendMessageBatch",
+      "sqs:ReceiveMessage",
+      "sqs:SendMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:ListQueueTags",
+      "sqs:ListDeadLetterSourceQueues",
+      "sqs:DeleteMessageBatch",
+      "sqs:PurgeQueue",
+      "sqs:DeleteQueue",
+      "sqs:CreateQueue",
+      "sqs:ChangeMessageVisibilityBatch",
+      "sqs:SetQueueAttributes"
+    ]
+    resources = [
+      aws_sqs_queue.main.arn
+    ]
+  }
+}
