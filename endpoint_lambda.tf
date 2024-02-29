@@ -15,8 +15,16 @@ resource "aws_apigatewayv2_route" "lambda" {
   authorization_type = "CUSTOM"
   authorizer_id      = aws_apigatewayv2_authorizer.main.id
 
-  target = "integrations/${aws_apigatewayv2_integration.message.id}"
+  target = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
+
+resource "aws_lambda_permission" "main" {
+  action        = "lambda:InvokeFunction"
+  function_name =aws_lambda_function.endpoint.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
+}
+
 
 data "archive_file" "endpoint_lambda" {
   type        = "zip"
