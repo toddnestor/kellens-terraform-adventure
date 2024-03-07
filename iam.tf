@@ -78,3 +78,22 @@ data "aws_iam_policy_document" "sqs_policy_doc" {
     ]
   }
 }
+
+### ECS stuffs
+data "aws_iam_policy_document" "task_assume" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "fargate_execution" {
+  name                = "todds-mod-execution-role"
+  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"]
+  assume_role_policy  = data.aws_iam_policy_document.task_assume.json
+}
